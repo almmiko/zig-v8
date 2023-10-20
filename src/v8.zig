@@ -1,7 +1,7 @@
 const std = @import("std");
 const t = std.testing;
 
-const c = @cImport({
+pub const c = @cImport({
     @cInclude("binding.h");
 });
 
@@ -1192,7 +1192,7 @@ inline fn getValueHandle(val: anytype) *const c.Value {
 }
 
 inline fn getNameHandle(val: anytype) *const c.Name {
-    return @ptrCast(comptime switch (@TypeOf(val)) {
+    return @ptrCast(switch (@TypeOf(val)) {
         *const c.String => val,
         String => val.handle,
         else => @compileError(std.fmt.comptimePrint("{s} is not a subtype of v8::Name", .{@typeName(@TypeOf(val))})),
@@ -1200,7 +1200,7 @@ inline fn getNameHandle(val: anytype) *const c.Name {
 }
 
 inline fn getTemplateHandle(val: anytype) *const c.Template {
-    return @ptrCast(comptime switch (@TypeOf(val)) {
+    return @ptrCast(switch (@TypeOf(val)) {
         FunctionTemplate => val.handle,
         ObjectTemplate => val.handle,
         else => @compileError(std.fmt.comptimePrint("{s} is not a subtype of v8::Template", .{@typeName(@TypeOf(val))})),
@@ -1208,7 +1208,7 @@ inline fn getTemplateHandle(val: anytype) *const c.Template {
 }
 
 inline fn getDataHandle(val: anytype) *const c.Data {
-    return @ptrCast(comptime switch (@TypeOf(val)) {
+    return @ptrCast(switch (@TypeOf(val)) {
         FunctionTemplate => val.handle,
         ObjectTemplate => val.handle,
         Integer => val.handle,
@@ -1742,7 +1742,7 @@ pub const Value = struct {
     pub fn toI32(self: Self, ctx: Context) !i32 {
         var out: c.MaybeI32 = undefined;
         c.v8__Value__Int32Value(self.handle, ctx.handle, &out);
-        if (out.has_value == 1) {
+        if (out.has_value) {
             return out.value;
         } else return error.JsException;
     }
@@ -1750,7 +1750,7 @@ pub const Value = struct {
     pub fn toU32(self: Self, ctx: Context) !u32 {
         var out: c.MaybeU32 = undefined;
         c.v8__Value__Uint32Value(self.handle, ctx.handle, &out);
-        if (out.has_value == 1) {
+        if (out.has_value) {
             return out.value;
         } else return error.JsException;
     }
@@ -1758,7 +1758,7 @@ pub const Value = struct {
     pub fn toF32(self: Self, ctx: Context) !f32 {
         var out: c.MaybeF64 = undefined;
         c.v8__Value__NumberValue(self.handle, ctx.handle, &out);
-        if (out.has_value == 1) {
+        if (out.has_value) {
             return @floatCast(out.value);
         } else return error.JsException;
     }
@@ -1766,7 +1766,7 @@ pub const Value = struct {
     pub fn toF64(self: Self, ctx: Context) !f64 {
         var out: c.MaybeF64 = undefined;
         c.v8__Value__NumberValue(self.handle, ctx.handle, &out);
-        if (out.has_value == 1) {
+        if (out.has_value) {
             return out.value;
         } else return error.JsException;
     }
@@ -1774,7 +1774,7 @@ pub const Value = struct {
     pub fn bitCastToU64(self: Self, ctx: Context) !u64 {
         var out: c.MaybeF64 = undefined;
         c.v8__Value__NumberValue(self.handle, ctx.handle, &out);
-        if (out.has_value == 1) {
+        if (out.has_value) {
             return @bitCast(out.value);
         } else return error.JsException;
     }
@@ -1782,8 +1782,8 @@ pub const Value = struct {
     pub fn instanceOf(self: Self, ctx: Context, obj: Object) !bool {
         var out: c.MaybeBool = undefined;
         c.v8__Value__InstanceOf(self.handle, ctx.handle, obj.handle, &out);
-        if (out.has_value == 1) {
-            return out.value == 1;
+        if (out.has_value) {
+            return out.value;
         } else return error.JsException;
     }
 

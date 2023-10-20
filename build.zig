@@ -475,14 +475,14 @@ const CopyFileStep = struct {
 };
 
 // TODO: Make this usable from external project.
-fn linkV8(b: *Builder, step: *std.build.CompileStep, use_zig_tc: bool) void {
+pub fn linkV8(b: *Builder, step: *std.build.CompileStep, use_zig_tc: bool) void {
     //const mode = step.build_mode;
     const mode = step.optimize; //FIXED
     const target = step.target;
 
     const mode_str: []const u8 = if (mode == .Debug) "debug" else "release";
     const lib: []const u8 = if (target.getOsTag() == .windows and target.getAbi() == .msvc) "c_v8.lib" else "libc_v8.a";
-    const lib_path = std.fmt.allocPrint(b.allocator, "./v8-build/{s}/{s}/ninja/obj/zig/{s}", .{
+    const lib_path = std.fmt.allocPrint(b.allocator, "./lib/zig-v8/v8-build/{s}/{s}/ninja/obj/zig/{s}", .{
         getTargetId(b.allocator, target),
         mode_str,
         lib,
